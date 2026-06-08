@@ -190,7 +190,7 @@ export default function Grading() {
           <h3>Connect to Google Classroom</h3>
           <p>You must authenticate to see your courses and assignments.</p>
           <button className="primary-btn" onClick={handleLogin} disabled={loading}>
-            {loading ? 'Authenticating...' : 'Sign in with Google'}
+            {loading ? <><span className="spinner"></span> Authenticating...</> : 'Sign in with Google'}
           </button>
         </div>
       ) : (
@@ -229,9 +229,13 @@ export default function Grading() {
               
               <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px'}}>
                 <button className="primary-btn" onClick={startGrading} disabled={!!gradingStatus && gradingStatus !== 'Grading complete!'}>
-                  {submissions.length > 0 ? `Grade ${submissions.length} Submissions` : 'No submissions found'}
+                  {submissions.length > 0 ? (
+                    (!!gradingStatus && gradingStatus !== 'Grading complete!') ? 
+                      <><span className="spinner"></span> Grading...</> : 
+                      `Grade ${submissions.length} Submissions`
+                  ) : 'No submissions found'}
                 </button>
-                {gradingStatus && <span style={{fontSize: '14px', color: '#64748b'}}>{gradingStatus}</span>}
+                {gradingStatus && <span className={gradingStatus !== 'Grading complete!' ? 'pulse' : ''} style={{fontSize: '14px', color: '#64748b', fontWeight: 500}}>{gradingStatus}</span>}
               </div>
 
               {feedbackResults.length > 0 && (
