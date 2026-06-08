@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Google Classroom AI AutoGrader",
+  "version": "1.0.0",
+  "description": "Grade Google Classroom submissions using AI based on your rubrics.",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "permissions": [
+    "storage",
+    "identity",
+    "sidePanel",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "host_permissions": [
+    "https://*.googleapis.com/*"
+  ]
+}
