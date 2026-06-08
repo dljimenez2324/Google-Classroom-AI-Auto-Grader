@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import Settings from './components/Settings';
+import SetupGuide from './components/SetupGuide';
+import Grading from './components/Grading';
 
 function App({ isSidePanel }) {
+  const [activeTab, setActiveTab] = useState('grading');
+
   const openSidePanel = async () => {
     if (chrome?.windows && chrome?.sidePanel) {
       const currentWindow = await chrome.windows.getCurrent();
@@ -30,13 +35,23 @@ function App({ isSidePanel }) {
     <div className="app-container side-panel-container">
       <h1>Google Classroom AutoGrader</h1>
       <div className="tabs">
-        <button className="tab-btn active">Grading</button>
-        <button className="tab-btn">Settings</button>
-        <button className="tab-btn">Setup Guide</button>
+        <button 
+          className={`tab-btn ${activeTab === 'grading' ? 'active' : ''}`}
+          onClick={() => setActiveTab('grading')}
+        >Grading</button>
+        <button 
+          className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >Settings</button>
+        <button 
+          className={`tab-btn ${activeTab === 'setup' ? 'active' : ''}`}
+          onClick={() => setActiveTab('setup')}
+        >Setup Guide</button>
       </div>
       <div className="content-area">
-        <p>Welcome to the AutoGrader Side Panel.</p>
-        {/* We will build out the rest of the UI in Phase 2 & 3 */}
+        {activeTab === 'grading' && <Grading />}
+        {activeTab === 'settings' && <Settings />}
+        {activeTab === 'setup' && <SetupGuide />}
       </div>
     </div>
   );

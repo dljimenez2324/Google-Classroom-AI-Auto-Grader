@@ -68,4 +68,88 @@
   padding: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   border: 1px solid var(--border-color);
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+}
+
+.description {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-group small {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.step-card {
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background: #f8fafc;
+}
+
+.step-card h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.step-card ol {
+  padding-left: 20px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.step-card li {
+  margin-bottom: 8px;
+}
+
+.placeholder-card {
+  border: 1px dashed var(--border-color);
+  padding: 24px;
+  text-align: center;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.placeholder-card h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.placeholder-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
 }
