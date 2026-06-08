@@ -141,3 +141,24 @@ export async function fetchSlideContent(accessToken, presentationId) {
   }
   return content;
 }
+
+export async function updateSubmissionGrade(accessToken, courseId, courseWorkId, submissionId, draftGrade) {
+  const url = `https://classroom.googleapis.com/v1/courses/${courseId}/courseWork/${courseWorkId}/studentSubmissions/${submissionId}?updateMask=draftGrade`;
+  
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      draftGrade: draftGrade
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update grade: ${response.statusText}`);
+  }
+
+  return await response.json();
+}

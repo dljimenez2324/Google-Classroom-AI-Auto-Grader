@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { authenticateWithGoogle, fetchCourses, fetchAssignments, fetchSubmissions, fetchDocContent, fetchSlideContent } from '../utils/googleApi';
+import { authenticateWithGoogle, fetchCourses, fetchAssignments, fetchSubmissions, fetchDocContent, fetchSlideContent, updateSubmissionGrade } from '../utils/googleApi';
 import { evaluateSubmissionWithGemini } from '../utils/geminiApi';
 
 export default function Grading() {
@@ -161,20 +161,47 @@ export default function Grading() {
           }
           
           if (contentToGrade.trim() === '') {
-            results.push({ userId: sub.userId, feedback: "No readable Google Docs or Slides attached.", error: true });
+            results.push({ submissionId: sub.id, userId: sub.userId, feedback: "No readable Google Docs or Slides attached.", grade: null, error: true });
             continue;
           }
           
-          const feedback = await evaluateSubmissionWithGemini(apiKey, rubric, contentToGrade);
-          results.push({ userId: sub.userId, feedback, error: false });
+          const resultJson = await evaluateSubmissionWithGemini(apiKey, rubric, contentToGrade);
+          results.push({ submissionId: sub.id, userId: sub.userId, feedback: resultJson.feedback, grade: resultJson.grade, error: false, pushed: false });
           
         } catch (err) {
-          results.push({ userId: sub.userId, feedback: `Error grading: ${err.message}`, error: true });
+          results.push({ submissionId: sub.id, userId: sub.userId, feedback: `Error grading: ${err.message}`, grade: null, error: true });
         }
       }
       
       setFeedbackResults(results);
       setGradingStatus('Grading complete!');
+    });
+  };
+
+  const pushGrade = async (index) => {
+    const res = feedbackResults[index];
+    if (res.grade === null || res.grade === undefined) return;
+
+    chrome.storage.local.get(['googleAccessToken'], async (result) => {
+      if (result.googleAccessToken) {
+        try {
+          // Update state to show pushing status
+          const updatedResults = [...feedbackResults];
+          updatedResults[index].pushing = true;
+          setFeedbackResults(updatedResults);
+
+          await updateSubmissionGrade(result.googleAccessToken, course, assignment, res.submissionId, res.grade);
+          
+          updatedResults[index].pushing = false;
+          updatedResults[index].pushed = true;
+          setFeedbackResults([...updatedResults]);
+        } catch (err) {
+          alert('Failed to push grade: ' + err.message);
+          const updatedResults = [...feedbackResults];
+          updatedResults[index].pushing = false;
+          setFeedbackResults(updatedResults);
+        }
+      }
     });
   };
 
@@ -242,9 +269,23 @@ export default function Grading() {
                 <div className="results-container">
                   <h3>AI Feedback Results</h3>
                   {feedbackResults.map((res, i) => (
-                    <div key={i} className="step-card" style={{borderColor: res.error ? '#fca5a5' : '#e2e8f0'}}>
-                      <p style={{fontWeight: 500, margin: '0 0 8px 0'}}>Student ID: {res.userId}</p>
-                      <div style={{fontSize: '14px', whiteSpace: 'pre-wrap'}}>{res.feedback}</div>
+                    <div key={i} className="step-card" style={{borderColor: res.error ? '#fca5a5' : '#e2e8f0', position: 'relative'}}>
+                      <p style={{fontWeight: 600, margin: '0 0 4px 0'}}>Student ID: {res.userId}</p>
+                      {res.grade !== null && res.grade !== undefined && (
+                        <p style={{fontWeight: 700, color: '#2563eb', margin: '0 0 8px 0'}}>Suggested Grade: {res.grade}</p>
+                      )}
+                      <div style={{fontSize: '14px', whiteSpace: 'pre-wrap', color: '#475569'}}>{res.feedback}</div>
+                      
+                      {!res.error && res.grade !== null && res.grade !== undefined && (
+                        <button 
+                          className="primary-btn" 
+                          style={{marginTop: '12px', background: res.pushed ? '#10b981' : '#2563eb'}} 
+                          onClick={() => pushGrade(i)} 
+                          disabled={res.pushed || res.pushing}
+                        >
+                          {res.pushing ? <><span className="spinner"></span> Pushing...</> : (res.pushed ? 'Pushed as Draft' : 'Push to Classroom as Draft')}
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
